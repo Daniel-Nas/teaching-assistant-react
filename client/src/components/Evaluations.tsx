@@ -9,7 +9,10 @@ interface EvaluationsProps {
 
 const Evaluations: React.FC<EvaluationsProps> = ({ onError }) => {
   const [classes, setClasses] = useState<Class[]>([]);
-  const [selectedClassId, setSelectedClassId] = useState<string>('');
+  const [selectedClassId, setSelectedClassId] = useState<string>(() => {
+    // Load previously selected class from localStorage
+    return localStorage.getItem('evaluations-selected-class') || '';
+  });
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -50,6 +53,16 @@ const Evaluations: React.FC<EvaluationsProps> = ({ onError }) => {
     }
   }, [selectedClassId, classes]);
 
+  const handleClassSelection = (classId: string) => {
+    setSelectedClassId(classId);
+    // Save selected class to localStorage for persistence
+    if (classId) {
+      localStorage.setItem('evaluations-selected-class', classId);
+    } else {
+      localStorage.removeItem('evaluations-selected-class');
+    }
+  };
+
   const handleEvaluationChange = async (studentCPF: string, goal: string, grade: string) => {
     if (!selectedClass) {
       onError('No class selected');
@@ -86,7 +99,7 @@ const Evaluations: React.FC<EvaluationsProps> = ({ onError }) => {
         <select
           id="classSelect"
           value={selectedClassId}
-          onChange={(e) => setSelectedClassId(e.target.value)}
+          onChange={(e) => handleClassSelection(e.target.value)}
           className="class-select"
         >
           <option value="">-- Select a class --</option>
@@ -162,7 +175,7 @@ const Evaluations: React.FC<EvaluationsProps> = ({ onError }) => {
                             <select
                               value={currentGrade}
                               onChange={(e) => handleEvaluationChange(student.cpf, goal, e.target.value)}
-                              className="evaluation-select"
+                              className={`evaluation-select ${currentGrade ? `grade-${currentGrade.toLowerCase()}` : ''}`}
                             >
                               <option value="">-</option>
                               <option value="MANA">MANA</option>
