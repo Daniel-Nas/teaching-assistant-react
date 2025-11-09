@@ -3,6 +3,8 @@ import cors from 'cors';
 import { StudentSet } from './models/StudentSet';
 import { Student } from './models/Student';
 import { Evaluation } from './models/Evaluation';
+import { Classes } from './models/Classes';
+import { Class } from './models/Class';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -13,8 +15,9 @@ const PORT = 3005;
 app.use(cors());
 app.use(express.json());
 
-// In-memory student storage with file persistence
+// In-memory storage with file persistence
 const studentSet = new StudentSet();
+const classes = new Classes();
 const dataFile = path.resolve('./data/students.json');
 
 // Persistence functions
@@ -31,8 +34,7 @@ const saveStudentsToFile = (): void => {
       students: studentSet.getAllStudents().map(student => ({
         name: student.name,
         cpf: student.getCPF(),
-        email: student.email,
-        evaluations: student.evaluations.map(evaluation => evaluation.toJSON())
+        email: student.email
       }))
     };
     
@@ -43,25 +45,20 @@ const saveStudentsToFile = (): void => {
   }
 };
 
+// Load students from file
 const loadStudentsFromFile = (): void => {
   try {
     if (fs.existsSync(dataFile)) {
-      const fileContent = fs.readFileSync(dataFile, 'utf8');
+      const fileContent = fs.readFileSync(dataFile, 'utf-8');
       const data = JSON.parse(fileContent);
       
       if (data.students && Array.isArray(data.students)) {
         data.students.forEach((studentData: any) => {
-          const evaluations = studentData.evaluations
-            ? studentData.evaluations.map((evalData: any) => 
-                Evaluation.fromJSON(evalData)
-              )
-            : [];
-          
+          // Create student with basic info only - evaluations handled through enrollments
           const student = new Student(
             studentData.name,
             studentData.cpf,
-            studentData.email,
-            evaluations
+            studentData.email
           );
           
           try {
@@ -107,18 +104,14 @@ app.get('/api/students', (req: Request, res: Response) => {
 // POST /api/students - Add a new student
 app.post('/api/students', (req: Request, res: Response) => {
   try {
-    const { name, cpf, email, evaluations } = req.body;
+    const { name, cpf, email } = req.body;
     
     if (!name || !cpf || !email) {
       return res.status(400).json({ error: 'Name, CPF, and email are required' });
     }
 
-    // Convert evaluations from JSON to Evaluation objects if provided
-    const evaluationObjects = evaluations 
-      ? evaluations.map((evaluation: any) => Evaluation.fromJSON(evaluation))
-      : [];
-
-    const student = new Student(name, cpf, email, evaluationObjects);
+    // Create student with basic information only - evaluations handled through enrollments
+    const student = new Student(name, cpf, email);
     const addedStudent = studentSet.addStudent(student);
     triggerSave(); // Save to file after adding
     res.status(201).json(addedStudent.toJSON());
@@ -131,19 +124,14 @@ app.post('/api/students', (req: Request, res: Response) => {
 app.put('/api/students/:cpf', (req: Request, res: Response) => {
   try {
     const { cpf } = req.params;
-    const { name, email, evaluations } = req.body;
+    const { name, email } = req.body;
     
     if (!name || !email) {
       return res.status(400).json({ error: 'Name and email are required for update' });
     }
     
-    // Convert evaluations from JSON to Evaluation objects if provided
-    const evaluationObjects = evaluations 
-      ? evaluations.map((evaluation: any) => Evaluation.fromJSON(evaluation))
-      : [];
-    
-    // Create a Student object for update (evaluations will be properly updated in updateStudent)
-    const updatedStudent = new Student(name, cpf, email, evaluationObjects);
+    // Create a Student object for update - evaluations handled through enrollments
+    const updatedStudent = new Student(name, cpf, email);
     const result = studentSet.updateStudent(updatedStudent);
     triggerSave(); // Save to file after updating
     res.json(result.toJSON());
@@ -171,6 +159,8 @@ app.delete('/api/students/:cpf', (req: Request, res: Response) => {
 });
 
 // PUT /api/students/:cpf/evaluation - Update a specific evaluation
+// DEPRECATED: Evaluations are now handled through class enrollments
+/*
 app.put('/api/students/:cpf/evaluation', (req: Request, res: Response) => {
   try {
     const { cpf } = req.params;
@@ -204,6 +194,7 @@ app.put('/api/students/:cpf/evaluation', (req: Request, res: Response) => {
     res.status(400).json({ error: (error as Error).message });
   }
 });
+*/
 
 // GET /api/students/:cpf - Get a specific student
 app.get('/api/students/:cpf', (req: Request, res: Response) => {
@@ -217,6 +208,75 @@ app.get('/api/students/:cpf', (req: Request, res: Response) => {
     }
     
     res.json(student.toJSON());
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+// GET /api/classes - Get all classes
+app.get('/api/classes', (req: Request, res: Response) => {
+  try {
+    const allClasses = classes.getAllClasses();
+    res.json(allClasses.map(c => c.toJSON()));
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch classes' });
+  }
+});
+
+// POST /api/classes - Add a new class
+app.post('/api/classes', (req: Request, res: Response) => {
+  try {
+    const { topic, semester, year } = req.body;
+    
+    if (!topic || !semester || !year) {
+      return res.status(400).json({ error: 'Topic, semester, and year are required' });
+    }
+
+    const classObj = new Class(topic, semester, year);
+    const newClass = classes.addClass(classObj);
+    res.status(201).json(newClass.toJSON());
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+// PUT /api/classes/:id - Update a class
+app.put('/api/classes/:id', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { topic, semester, year } = req.body;
+    
+    if (!topic || !semester || !year) {
+      return res.status(400).json({ error: 'Topic, semester, and year are required' });
+    }
+    
+    const existingClass = classes.findClassById(id);
+    if (!existingClass) {
+      return res.status(404).json({ error: 'Class not found' });
+    }
+
+    // Update the class directly using setters
+    existingClass.setTopic(topic);
+    existingClass.setSemester(semester);
+    existingClass.setYear(year);
+    
+    res.json(existingClass.toJSON());
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
+});
+
+// DELETE /api/classes/:id - Delete a class
+app.delete('/api/classes/:id', (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const success = classes.removeClass(id);
+    
+    if (!success) {
+      return res.status(404).json({ error: 'Class not found' });
+    }
+    
+    res.status(204).send();
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
   }

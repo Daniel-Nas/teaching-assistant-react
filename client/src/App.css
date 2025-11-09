@@ -342,6 +342,83 @@ tbody tr:last-child td {
   min-height: 400px;
 }
 
+/* Class Selection */
+.class-selection {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.class-selection label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.class-selector {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: white;
+  cursor: pointer;
+}
+
+.class-selector:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-color: #667eea;
+}
+
+/* Classes Form */
+.classes-container {
+  max-width: 1000px;
+}
+
+.class-form-container {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.class-form {
+  display: grid;
+  grid-template-columns: 1fr 120px 120px;
+  gap: 1rem;
+  align-items: end;
+}
+
+.class-form .form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.class-form .form-buttons {
+  display: flex;
+  gap: 0.5rem;
+  grid-column: 1 / -1;
+}
+
+.classes-list {
+  margin-top: 2rem;
+}
+
+.no-classes {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  background-color: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
 /* Evaluations Table */
 .evaluations-table {
   width: 100%;
