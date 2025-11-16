@@ -7,9 +7,10 @@ import StudentList from './components/StudentList';
 import StudentForm from './components/StudentForm';
 import Evaluations from './components/Evaluations';
 import Classes from './components/Classes';
+import SelfEvaluation from "./components/SelfEvaluation";
 import './App.css';
 
-type TabType = 'students' | 'evaluations' | 'classes';
+type TabType = 'students' | 'evaluations' | 'classes' | 'self-evaluation';
 
 const App: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -143,6 +144,12 @@ const App: React.FC = () => {
           >
             Classes
           </button>
+          <button
+          className={`tab-button ${activeTab === 'self-evaluation' ? 'active' : ''}`}
+          onClick={() => setActiveTab('self-evaluation')}
+          >
+            Self Evaluation
+          </button>
         </div>
 
         {/* Tab Content */}
@@ -211,6 +218,9 @@ const App: React.FC = () => {
               onClassDeleted={handleClassDeleted}
               onError={handleError}
             />
+          )}
+          {activeTab === 'self-evaluation' && (
+            <SelfEvaluation onError={handleError} />
           )}
         </div>
       </main>
