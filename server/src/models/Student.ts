@@ -38,6 +38,10 @@ export class Student {
     return this.cpf;
   }
 
+  getEmail(): string{
+    return this.email;
+  }
+
   // Convert to JSON for API responses
   toJSON() {
     return {

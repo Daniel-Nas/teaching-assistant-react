@@ -1,4 +1,3 @@
-
 interface ImportGradeComponentProps {
   classID: string
 }
