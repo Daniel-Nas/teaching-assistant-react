@@ -78,11 +78,11 @@ class EnrollmentService {
       throw error;
     }
   }
-  
+
   //request self-evaluation for all students
-  static async requestSelfEvaluationAll(classId: string): Promise<any> {
+  static async requestSelfEvaluationAll(classId: string,goal: string): Promise<any> {
   const response = await fetch(
-    `${API_BASE_URL}/api/classes/${classId}/requestSelfEvaluationAll`,
+    `${API_BASE_URL}/api/classes/${classId}/requestSelfEvaluationAll/${goal}`,
     { method: 'POST' }
   );
 
@@ -94,9 +94,9 @@ class EnrollmentService {
   }
 
 // Request self-evaluation for a specific student
-static async requestSelfEvaluation(classId: string, studentCPF: string): Promise<any> {
+static async requestSelfEvaluation(classId: string, studentCPF: string, goal: string): Promise<any> {
   const response = await fetch(
-    `${API_BASE_URL}/api/classes/${classId}/requestSelfEvaluation/${studentCPF}`,
+    `${API_BASE_URL}/api/classes/${classId}/enrollments/${studentCPF}/requestSelfEvaluation/${goal}`,
     { method: 'POST' }
   );
 

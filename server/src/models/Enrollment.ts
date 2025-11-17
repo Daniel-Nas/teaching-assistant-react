@@ -10,6 +10,7 @@ export class Enrollment {
   private selfEvaluationRequestDate?: string;
   private nextAutoResendTime?: string;
   private resendAttempts: number = 0;
+  private pendingGoals: string[] = [];
   // Média do estudante antes da prova final
   private mediaPreFinal: number;
   // Média do estudante depois da final
@@ -140,17 +141,22 @@ export class Enrollment {
     });
   }
   //Solicitar autoavaliação
-  requestSelfEvaluation() {
+  requestSelfEvaluation(goal: string) {
     this.selfEvaluationRequested = true;
     this.selfEvaluationRequestDate = new Date().toISOString();
+    
+    // marcar que meta X está pendente
+    this.pendingGoals ??= [];
+    if (!this.pendingGoals.includes(goal)) {
+        this.pendingGoals.push(goal);
+    }
 
-    // gera horário de reenvio automático (ex: +24 horas)
-    const hours = 24; // <-- pode ser configurável depois
+    const hours = 24;
     const next = new Date(Date.now() + hours * 3600 * 1000);
-
     this.nextAutoResendTime = next.toISOString();
     this.resendAttempts = 0;
 }
+
   // Agendar próximo reenvio automático
   scheduleNextAutoResend(hours: number) {
       const next = new Date(Date.now() + hours * 3600 * 1000);

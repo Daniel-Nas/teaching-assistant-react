@@ -212,61 +212,60 @@ app.get('/api/students', (req: Request, res: Response) => {
 
 
 
-// POST /api/classes/:classId/requestSelfEvaluationAll
-app.post('/api/classes/:classId/requestSelfEvaluationAll', (req: Request, res: Response) => {
+// POST /api/classes/:classId/requestSelfEvaluationAll/:goal
+app.post('/api/classes/:classId/requestSelfEvaluationAll/:goal', (req, res) => {
   try {
-    const { classId } = req.params;
+    const { classId, goal } = req.params;
 
-    // procura a classe pelo id usando o objeto `classes` já existente
     const classObj = classes.findClassById(classId);
-    if (!classObj) {
-      return res.status(404).json({ error: 'Class not found' });
-    }
+    if (!classObj) return res.status(404).json({ error: "Class not found" });
 
-    // percorre todas as matrículas e solicita autoavaliação
     classObj.getEnrollments().forEach(enrollment => {
-      // usa o método que você adicionou em Enrollment
-      enrollment.requestSelfEvaluation();
+
+      // ❗ Só envia se o aluno NÃO preencheu essa meta
+      const filled = enrollment.getSelfEvaluationForGoal(goal);
+
+      if (!filled) {
+        enrollment.requestSelfEvaluation(goal); // vamos ajustar esse método já já
+      }
+
     });
 
-    // persiste as mudanças no arquivo
     triggerSave();
+    return res.json({ message: "Requests sent where missing." });
 
-    return res.json({
-      message: 'Self-evaluation requests sent to all students',
-      total: classObj.getEnrollments().length
-    });
-  } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+  } catch (err:any) {
+    return res.status(500).json({ error: err.message });
   }
 });
 
-// POST /api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation
-app.post('/api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation', (req: Request, res: Response) => {
+
+// POST /api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation/:goal
+app.post('/api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation/:goal', (req, res) => {
   try {
-    const { classId, studentCPF } = req.params;
+    const { classId, studentCPF, goal } = req.params;
 
     const classObj = classes.findClassById(classId);
-    if (!classObj) {
-      return res.status(404).json({ error: 'Class not found' });
+    if (!classObj) return res.status(404).json({ error: "Class not found" });
+
+    const enrollment = classObj.findEnrollmentByStudentCPF(studentCPF);
+    if (!enrollment) return res.status(404).json({ error: "Student not enrolled" });
+
+    // ❗ Só envia se aluno não respondeu essa meta
+    const filled = enrollment.getSelfEvaluationForGoal(goal);
+    if (filled) {
+      return res.json({ message: `Student already filled goal '${goal}'` });
     }
 
-    const cleanedCPF = cleanCPF(studentCPF);
-    const enrollment = classObj.findEnrollmentByStudentCPF(cleanedCPF);
-    if (!enrollment) {
-      return res.status(404).json({ error: 'Student not enrolled in this class' });
-    }
-
-    enrollment.requestSelfEvaluation();
+    enrollment.requestSelfEvaluation(goal);
     triggerSave();
 
-    return res.json({ message: 'Self-evaluation request created', enrollment: enrollment.toJSON() });
-  } catch (error) {
-    return res.status(500).json({ error: (error as Error).message });
+    return res.json({ message: "Request created" });
+
+  } catch (err:any) {
+    return res.status(500).json({ error: err.message });
   }
 });
-
-
 
 // POST /api/students - Add a new student
 app.post('/api/students', (req: Request, res: Response) => {
@@ -285,6 +284,12 @@ app.post('/api/students', (req: Request, res: Response) => {
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
   }
+});
+
+app.post("/api/classes/:classId/self-evaluation/:cpf", (req, res) => {
+  const { classId, cpf } = req.params;
+  //Fazer o send email
+  res.status(200).json({ ok: true, message: "Solicitação enviada" });
 });
 
 // PUT /api/students/:cpf - Update a student
@@ -522,11 +527,11 @@ app.get('/api/classes/:classId/enrollments', (req: Request, res: Response) => {
 });
 
 // PUT /api/classes/:classId/enrollments/:studentCPF/evaluation - Update evaluation for an enrolled student
-app.put('/api/classes/:classId/enrollments/:studentCPF/evaluation', (req, res) =>
+app.put('/api/classes/:classId/enrollments/:studentCPF/evaluation/:goal', (req, res) =>
   handleEvaluationUpdate(req, res, { type: 'evaluation' })
 );
 
-app.put('/api/classes/:classId/enrollments/:studentCPF/selfEvaluation', (req, res) =>
+app.put('/api/classes/:classId/enrollments/:studentCPF/selfEvaluation/:goal', (req, res) =>
   handleEvaluationUpdate(req, res, { type: 'selfEvaluation' })
 );
 
