@@ -1195,7 +1195,7 @@ tbody tr:last-child td {
 }
 
 .students-list tbody tr:hover {
-  background-color: #3cacd4c0; 
+  background-color: #3cacd4c0;
   transition: background-color 0.2s ease; 
   cursor: pointer; 
 }
