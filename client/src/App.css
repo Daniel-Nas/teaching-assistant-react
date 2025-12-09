@@ -1222,14 +1222,21 @@ tbody tr:last-child td {
   border: 1px solid #5c5c5c;
 }
 
-
-
 .SelfEvaluation-button-send-scheduler{
   margin-top: 20px;
   padding: 8px 16px;
   cursor: pointer;
   background-color: #427ebb;
   border: 2px solid #82a4c7;
+  display: block;
+}
+
+.SelfEvaluation-input-scheduler{
+  background-color: #ffffff;
+  border: 2px solid #555758;
+  border-radius: 4px;
+  padding: 5px;
+  margin-left: 5px;
 }
 
 .SelfEvaluation-button-send-scheduler:hover {

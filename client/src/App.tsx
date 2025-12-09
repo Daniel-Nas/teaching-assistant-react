@@ -7,7 +7,7 @@ import StudentList from './components/StudentList';
 import StudentForm from './components/StudentForm';
 import Evaluations from './components/Evaluations';
 import Classes from './components/Classes';
-import SelfEvaluation from "./components/SelfEvaluation";
+//import SelfEvaluation from "./components/SelfEvaluation";
 import './App.css';
 
 type TabType = 'students' | 'evaluations' | 'classes' | 'self-evaluation';
@@ -218,9 +218,6 @@ const App: React.FC = () => {
               onClassDeleted={handleClassDeleted}
               onError={handleError}
             />
-          )}
-          {activeTab === 'self-evaluation' && (
-            <SelfEvaluation onError={handleError} />
           )}
         </div>
       </main>
