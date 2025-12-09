@@ -19,6 +19,13 @@ interface Props {
 const SelfEvaluation: React.FC<Props> = ({ onError }) => {
   const [classes, setClasses] = useState<Class[]>([]);
   const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+  const [showScheduler, setShowScheduler] = useState(false);
+  const [scheduledGoal, setScheduledGoal] = useState("");
+  const [days, setDays] = useState(0);
+  const [hours, setHours] = useState(0);
+  const [minutes, setMinutes] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
 
   const loadClasses = async () => {
     try {
@@ -55,7 +62,7 @@ const SelfEvaluation: React.FC<Props> = ({ onError }) => {
       <h2>Self-Evaluation Notification</h2>
 
       {/* Seleção de turma */}
-      <select
+      <select className = "SelfEvaluation-selection"
         onChange={(e) => {
           const c = classes.find((cls) => cls.id === e.target.value);
           setSelectedClass(c || null);
@@ -68,7 +75,97 @@ const SelfEvaluation: React.FC<Props> = ({ onError }) => {
           </option>
         ))}
       </select>
-      {selectedClass && (
+      {selectedClass && (<>
+      <button className="SelfEvaluation-button-scheduler"
+      onClick={() => setShowScheduler(true)}
+      
+    >
+      Agendar solicitação
+    </button>
+    {showScheduler && (
+      <div
+        style={{
+          marginBottom: "20px",
+          padding: "15px",
+          border: "1px solid #ccc",
+          borderRadius: "8px",
+          background: "#f9f9f9"
+        }}
+      >
+        <h3>Agendar solicitação de autoavaliação</h3>
+
+        {/* Selecionar meta */}
+        <label>Meta:</label>
+        <select className = "SelfEvaluation-selection"
+          style={{ marginLeft: "10px" }}
+          value={scheduledGoal}
+          onChange={(e) => setScheduledGoal(e.target.value)}
+        >
+          <option value="">Selecione uma meta</option>
+          {evaluationGoals.map(goal => (
+            <option key={goal} value={goal}>{goal}</option>
+          ))}
+        </select>
+
+        {/* Selecionar tempo */}
+        <div style={{ marginTop: "10px" }}>
+          <label>Dias:</label>
+          <input
+            type="number"
+            min="0"
+            value={days}
+            onChange={(e) => setDays(parseInt(e.target.value))}
+            style={{ width: "60px", marginRight: "10px", marginLeft: "5px" }}
+          />
+
+          <label>Horas:</label>
+          <input
+            type="number"
+            min="0"
+            max="23"
+            value={hours}
+            onChange={(e) => setHours(parseInt(e.target.value))}
+            style={{ width: "60px", marginRight: "10px", marginLeft: "5px" }}
+          />
+
+          <label>Minutos:</label>
+          <input
+            type="number"
+            min="0"
+            max="59"
+            value={minutes}
+            onChange={(e) => setMinutes(parseInt(e.target.value))}
+            style={{ width: "60px", marginRight: "10px", marginLeft: "5px" }}
+          />
+
+          <label>Segundos:</label>
+          <input
+            type="number"
+            min="0"
+            max="59"
+            value={seconds}
+            onChange={(e) => setSeconds(parseInt(e.target.value))}
+            style={{ width: "60px", marginLeft: "5px" }}
+          />
+        </div>
+
+        {/* Exibir data/hora final */}
+        {scheduledDate && (
+          <p style={{ marginTop: "10px", fontWeight: "bold" }}>
+            A solicitação será enviada em:  
+            {scheduledDate.toLocaleString()}
+          </p>
+        )}
+
+        {/* Botão para agendar */}
+        <button className="SelfEvaluation-button-send-scheduler"
+          onClick={() => true}
+    
+        >
+          Agendar solicitação de autoavaliação
+        </button>
+      </div>
+    )}
   <table className="students-list" style={{ marginTop: "20px" }}>
     <thead>
       <tr>
@@ -141,7 +238,7 @@ const SelfEvaluation: React.FC<Props> = ({ onError }) => {
           }
           </tbody>
         </table>
-      )}
+      </>)}
 
       {/* --- AQUI ESTÁ A CORREÇÃO: Renderização do Modal --- */}
       {modal && (
