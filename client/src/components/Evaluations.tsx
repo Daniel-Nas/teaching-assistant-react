@@ -4,6 +4,7 @@ import ClassService from '../services/ClassService';
 import EnrollmentService from '../services/EnrollmentService';
 
 import { ImportGradeComponent } from './ImportGrade';
+import { assign } from 'nodemailer/lib/shared';
 
 interface EvaluationsProps {
   onError: (errorMessage: string) => void;
@@ -22,7 +23,6 @@ const Evaluations: React.FC<EvaluationsProps> = ({ onError }) => {
   const [days, setDays] = useState<number | "">(0);
   const [hours, setHours] = useState<number | "">(0);
   const [minutes, setMinutes] = useState<number | "">(0);
-  const [seconds, setSeconds] = useState<number | "">(0);
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
 
   // Predefined evaluation goals
@@ -68,16 +68,15 @@ const Evaluations: React.FC<EvaluationsProps> = ({ onError }) => {
   const d = Number(days) || 0;
   const h = Number(hours) || 0;
   const m = Number(minutes) || 0;
-  const s = Number(seconds) || 0;
 
-  const totalMs = ((d * 24 + h) * 60 + m) * 60 * 1000 + s * 1000;
+  const totalMs = ((d * 24 + h) * 60 + m) * 60 * 1000;
 
   if (totalMs > 0) {
     setScheduledDate(new Date(Date.now() + totalMs));
   } else {
     setScheduledDate(null);
   }
-}, [days, hours, minutes, seconds]);
+}, [days, hours, minutes]);
 
 
   const [modal, setModal] = useState<{ title: string; message: string } | null>(null);
@@ -233,8 +232,8 @@ return (
             </table>
           </div>
         </div>
-      )
-        {/* BOTÃO AGENDAR */}
+        <h1 style={{ marginTop: '20px' }}>Solicitação de autoavaliação</h1>
+        {/* BOTÃO AGENDAR SOLICITAÇÃO*/}
         <button
           className="SelfEvaluation-button-scheduler"
           onClick={() => setShowScheduler(true)}
@@ -253,7 +252,7 @@ return (
               background: "#f9f9f9",
             }}
           >
-            <h3>Agendar solicitação de autoavaliação</h3>
+            <h2>Agendar solicitação de autoavaliação</h2>
 
             <label>Meta:</label>
             <select
@@ -300,31 +299,52 @@ return (
                   setMinutes(e.target.value === "" ? "" : Number(e.target.value))
                 }
               />
-
-              <input className="SelfEvaluation-input-scheduler"
-                type="number"
-                min="0"
-                max="59"
-                value={seconds}
-                onChange={(e) =>
-                  setSeconds(e.target.value === "" ? "" : Number(e.target.value))
-                }
-              />
-
               {scheduledDate && (
                 <p style={{ marginTop: "10px", fontWeight: "bold" }}>
                   A solicitação será enviada em:
                   {scheduledDate.toLocaleString()}
                 </p>
               )}
-
               <button
                 className="SelfEvaluation-button-send-scheduler"
-                onClick={() => {
-                  openModal(
-                    "Sucesso!",
-                    `Agendamento do Pedido de autoavaliação para a turma: ${selectedClass.topic}, na meta: ${scheduledGoal} Feito com sucesso`
-                  );
+                onClick={async () => {
+
+                  if (!selectedClass) {
+                    openModal("Selecione uma turma antes de agendar.",'');
+                    return;
+                  }
+                  else if (!scheduledGoal) {
+                    openModal("Selecione uma meta.",'');
+                    return;
+                  }
+
+                  else if (!scheduledDate) {
+                    openModal("Informe um tempo válido para o agendamento.",'');
+                    return;
+                  }else{
+                        const totalHours = ((Number(days) || 0) * 24) + (Number(hours) || 0) + ((Number(minutes) || 0) / 60);
+                        try {
+                          await EnrollmentService.scheduleOneTime(selectedClass.id, scheduledGoal, totalHours);
+
+                          openModal(
+                            "Sucesso!",
+                            `Pedido de autoavaliação agendado para a turma: ${selectedClass.topic}, meta: ${scheduledGoal}. Envio em: ${scheduledDate.toLocaleString()}`
+                          );
+
+                          // fechar e resetar form
+                          setShowScheduler(false);
+                          setScheduledGoal("");
+                          setDays(0);
+                          setHours(0);
+                          setMinutes(0);
+                          setScheduledDate(null);
+
+                          // atualizar classes se quiser
+                          loadClasses();
+                        } catch (err: any) {
+                          onError(err.message || "Erro ao agendar");
+                        }
+                  }
                 }}
               >
                 Agendar solicitação de autoavaliação
@@ -332,8 +352,7 @@ return (
             </div>
           </div>
         )}
-
-        {/* TABELA DE ENVIO */}
+        <h2 >Envio imediato</h2>
         <table className="students-list" style={{ marginTop: "20px" }}>
           <thead>
             <tr>
@@ -354,8 +373,8 @@ return (
               {evaluationGoals.map((goal) => (
                 <td key={goal}>
                   <button
-                    onClick={() =>
-                      EnrollmentService.requestSelfEvaluationAll(
+                    onClick={async () =>
+                      await EnrollmentService.requestSelfEvaluationAll(
                         selectedClass.id,
                         goal
                       )
@@ -383,8 +402,8 @@ return (
                 {evaluationGoals.map((goal) => (
                   <td key={goal}>
                     <button
-                      onClick={() =>
-                        EnrollmentService.requestSelfEvaluation(
+                      onClick={async () =>
+                        await EnrollmentService.requestSelfEvaluation(
                           selectedClass.id,
                           enr.student.cpf,
                           goal

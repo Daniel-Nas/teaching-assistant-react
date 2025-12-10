@@ -337,10 +337,8 @@ app.post('/api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation/:g
 app.post('/api/classes/:classId/scheduleOneTime/:goal', async (req, res) => {
   try {
     const { classId, goal } = req.params;
-    const { hours } = req.body; // Ex: 48
-
+    const { hours } = req.body; 
     if (!hours) return res.status(400).json({ error: "Horas não informadas" });
-
     const classObj = classes.findClassById(classId);
     if (!classObj) return res.status(404).json({ error: "Turma não encontrada" });
 
@@ -349,7 +347,6 @@ app.post('/api/classes/:classId/scheduleOneTime/:goal', async (req, res) => {
     classObj.getEnrollments().forEach(enrollment => {
       // Só agenda se o aluno ainda não fez
       if (!enrollment.getSelfEvaluationForGoal(goal)) {
-         // Chama o método novo que criamos no Enrollment
          enrollment.scheduleOneTimeReminder(goal, Number(hours));
          count++;
       }
@@ -357,7 +354,7 @@ app.post('/api/classes/:classId/scheduleOneTime/:goal', async (req, res) => {
 
     triggerSave(); // Salva no JSON
     
-    // Note que NÃO enviamos e-mail agora. Apenas agendamos.
+    // Agendando
     return res.json({ message: `Agendado disparo único daqui a ${hours}h para ${count} alunos.` });
 
   } catch (err:any) {
@@ -642,9 +639,7 @@ app.post('/api/classes/gradeImport/:classId', upload_dir.single('file'), async (
   res.status(501).json({ error: "Endpoint ainda não implementado." });
 });
 
-const SCHEDULER_INTERVAL = 60 * 1000; // Roda a cada 1 minuto
-//
-
+const SCHEDULER_INTERVAL = 30 * 1000;
 
 if (process.env.NODE_ENV !== 'test') {
   setInterval(async () => {
@@ -657,9 +652,7 @@ if (process.env.NODE_ENV !== 'test') {
       for (const enrollment of classObj.getEnrollments()) {
         
         // O método retorna o NOME DA META se for hora de enviar, ou null se não for
-        // Ele internamente já LIMPOU o agendamento (One-shot)
         const metaParaEnviar = enrollment.checkAndExecuteOneTime(now);
-
         if (metaParaEnviar) {
           const student = enrollment.getStudent();
           console.log(`Enviando lembrete único para ${student.email}`);

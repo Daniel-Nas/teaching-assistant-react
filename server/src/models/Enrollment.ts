@@ -9,8 +9,6 @@ export class Enrollment {
   private selfEvaluationRequested: boolean = false;
   private selfEvaluationRequestDate?: string;
   private oneTimeSchedule: { goal: string, executeAt: number } | null = null;
-  private nextAutoResendTime?: string;
-  private resendAttempts: number = 0;
   private pendingGoals: string[] = [];
   // Média do estudante antes da prova final
   private mediaPreFinal: number;
@@ -154,8 +152,6 @@ export class Enrollment {
 
     const hours = 24;
     const next = new Date(Date.now() + hours * 3600 * 1000);
-    this.nextAutoResendTime = next.toISOString();
-    this.resendAttempts = 0;
 }
 
 // Método para AGENDAR (Chamado pela Rota)

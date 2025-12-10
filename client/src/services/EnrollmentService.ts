@@ -107,6 +107,18 @@ static async requestSelfEvaluation(classId: string, studentCPF: string, goal: st
   return response.json();
 }
 
+static async scheduleOneTime(classId: string, goal: string, hours: number) {
+const res = await fetch(
+    `${API_BASE_URL}/api/classes/${classId}/scheduleOneTime/${encodeURIComponent(goal)}`,
+    {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ hours }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
 }
 
 export default EnrollmentService;
