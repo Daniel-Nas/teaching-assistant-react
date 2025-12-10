@@ -270,7 +270,7 @@ return (
             </select>
 
             <div style={{ marginTop: "10px" }}>
-              <label>Dias:</label>
+              <label>Dias:Horas:Minutos</label>
               <input className="SelfEvaluation-input-scheduler"
                 type="number"
                 min="0"

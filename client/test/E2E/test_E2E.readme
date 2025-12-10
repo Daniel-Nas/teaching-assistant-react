@@ -1,0 +1,10 @@
+No client criamos baixamos a o playwright:
+
+npm install -D @playwright/test
+npx playwright install
+
+Compilamos serv e client;
+
+em seguida no client:
+
+npx playwright test --ui

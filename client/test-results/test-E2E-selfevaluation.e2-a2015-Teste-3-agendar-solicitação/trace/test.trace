@@ -1,0 +1,39 @@
+{"version":8,"type":"context-options","origin":"testRunner","browserName":"","playwrightVersion":"1.57.0","options":{},"platform":"linux","wallTime":1765365260198,"monotonicTime":1002176.018,"sdkLanguage":"javascript"}
+{"type":"before","callId":"hook@1","stepId":"hook@1","startTime":1002186.447,"class":"Test","method":"hook","title":"Before Hooks","params":{},"stack":[]}
+{"type":"before","callId":"fixture@28","stepId":"fixture@28","parentId":"hook@1","startTime":1002291.328,"class":"Test","method":"fixture","title":"Fixture \"context\"","params":{},"stack":[]}
+{"type":"before","callId":"pw:api@29","stepId":"pw:api@29","parentId":"fixture@28","startTime":1002297.348,"class":"Test","method":"pw:api","title":"Create context","params":{"acceptDownloads":"accept","bypassCSP":"false","colorScheme":"light","hasTouch":"false","ignoreHTTPSErrors":"false","isMobile":"false","javaScriptEnabled":"true","locale":"en-US","offline":"false","viewport":"Object","serviceWorkers":"allow","selectorEngines":"[]","testIdAttributeName":"data-testid","noDefaultViewport":"false","extraHTTPHeaders":"undefined","storageState":"undefined","reducedMotion":"undefined","forcedColors":"undefined","contrast":"undefined","clientCertificates":"undefined"},"stack":[]}
+{"type":"after","callId":"pw:api@29","endTime":1002360.142,"annotations":[]}
+{"type":"after","callId":"fixture@28","endTime":1002380.811,"annotations":[]}
+{"type":"before","callId":"fixture@30","stepId":"fixture@30","parentId":"hook@1","startTime":1002384.851,"class":"Test","method":"fixture","title":"Fixture \"page\"","params":{},"stack":[]}
+{"type":"before","callId":"pw:api@31","stepId":"pw:api@31","parentId":"fixture@30","startTime":1002400.973,"class":"Test","method":"pw:api","title":"Create page","params":{},"stack":[]}
+{"type":"after","callId":"pw:api@31","endTime":1002616.558,"annotations":[]}
+{"type":"after","callId":"fixture@30","endTime":1002627.662,"annotations":[]}
+{"type":"after","callId":"hook@1","endTime":1002627.978,"annotations":[]}
+{"type":"before","callId":"pw:api@32","stepId":"pw:api@32","startTime":1002655.029,"class":"Test","method":"pw:api","title":"Navigate to \"/\"","params":{"url":"http://localhost:3000","waitUntil":"load","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":53,"column":20}]}
+{"type":"after","callId":"pw:api@32","endTime":1003909.754,"annotations":[]}
+{"type":"before","callId":"pw:api@33","stepId":"pw:api@33","startTime":1003915.498,"class":"Test","method":"pw:api","title":"Click getByRole('button', { name: 'Evaluations' })","params":{"selector":"internal:role=button[name=\"Evaluations\"i]","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":55,"column":65}]}
+{"type":"after","callId":"pw:api@33","endTime":1004584.561,"annotations":[]}
+{"type":"before","callId":"pw:api@34","stepId":"pw:api@34","startTime":1004597.567,"class":"Test","method":"pw:api","title":"Select option getByLabel('Select Class:')","params":{"selector":"internal:label=\"Select Class:\"i","options":"[Object]","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":58,"column":48}]}
+{"type":"after","callId":"pw:api@34","endTime":1004944.365,"annotations":[]}
+{"type":"before","callId":"pw:api@35","stepId":"pw:api@35","startTime":1004970.655,"class":"Test","method":"pw:api","title":"Click getByRole('button', { name: 'Agendar solicitação' })","params":{"selector":"internal:role=button[name=\"Agendar solicitação\"i]","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":61,"column":73}]}
+{"type":"after","callId":"pw:api@35","endTime":1005406.789,"annotations":[]}
+{"type":"before","callId":"pw:api@36","stepId":"pw:api@36","startTime":1005439.807,"class":"Test","method":"pw:api","title":"Select option locator('select.SelfEvaluation-selection')","params":{"selector":"select.SelfEvaluation-selection","options":"[Object]","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":64,"column":63}]}
+{"type":"after","callId":"pw:api@36","endTime":1005598.11,"annotations":[]}
+{"type":"before","callId":"pw:api@37","stepId":"pw:api@37","startTime":1005645.756,"class":"Test","method":"pw:api","title":"Fill \"0\" locator('.SelfEvaluation-input-scheduler').first()","params":{"selector":".SelfEvaluation-input-scheduler >> nth=0","value":"0","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":70,"column":36}]}
+{"type":"after","callId":"pw:api@37","endTime":1005881.217,"annotations":[]}
+{"type":"before","callId":"pw:api@38","stepId":"pw:api@38","startTime":1005915.267,"class":"Test","method":"pw:api","title":"Fill \"0\" locator('.SelfEvaluation-input-scheduler').nth(1)","params":{"selector":".SelfEvaluation-input-scheduler >> nth=1","value":"0","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":73,"column":36}]}
+{"type":"after","callId":"pw:api@38","endTime":1006026.512,"annotations":[]}
+{"type":"before","callId":"pw:api@39","stepId":"pw:api@39","startTime":1006040.799,"class":"Test","method":"pw:api","title":"Fill \"2\" locator('.SelfEvaluation-input-scheduler').nth(2)","params":{"selector":".SelfEvaluation-input-scheduler >> nth=2","value":"2","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":76,"column":36}]}
+{"type":"after","callId":"pw:api@39","endTime":1006294.334,"annotations":[]}
+{"type":"before","callId":"pw:api@40","stepId":"pw:api@40","startTime":1006315.397,"class":"Test","method":"pw:api","title":"Click getByRole('button', { name: 'Agendar solicitação de autoavaliação' })","params":{"selector":"internal:role=button[name=\"Agendar solicitação de autoavaliação\"i]","strict":"true","timeout":"0"},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":79,"column":90}]}
+{"type":"after","callId":"pw:api@40","endTime":1006786.632,"annotations":[]}
+{"type":"before","callId":"expect@41","stepId":"expect@41","startTime":1006853.83,"class":"Test","method":"expect","title":"Expect \"toBeVisible\"","params":{},"stack":[{"file":"/home/daniel/ESS/teaching-assistant-react/client/test/E2E/selfevaluation.e2e.spec.ts","line":82,"column":50}]}
+{"type":"after","callId":"expect@41","endTime":1007016.192,"annotations":[]}
+{"type":"before","callId":"hook@42","stepId":"hook@42","startTime":1007024.46,"class":"Test","method":"hook","title":"After Hooks","params":{},"stack":[]}
+{"type":"before","callId":"fixture@43","stepId":"fixture@43","parentId":"hook@42","startTime":1007031.314,"class":"Test","method":"fixture","title":"Fixture \"page\"","params":{},"stack":[]}
+{"type":"after","callId":"fixture@43","endTime":1007031.68,"annotations":[]}
+{"type":"before","callId":"fixture@44","stepId":"fixture@44","parentId":"hook@42","startTime":1007032.842,"class":"Test","method":"fixture","title":"Fixture \"context\"","params":{},"stack":[]}
+{"type":"before","callId":"pw:api@45","stepId":"pw:api@45","parentId":"fixture@44","startTime":1007870.056,"class":"Test","method":"pw:api","title":"Close context","params":{"reason":"Test ended."},"stack":[]}
+{"type":"after","callId":"pw:api@45","endTime":1007909.339,"annotations":[]}
+{"type":"after","callId":"fixture@44","endTime":1007910.01,"annotations":[]}
+{"type":"after","callId":"hook@42","endTime":1007970.266,"annotations":[]}
