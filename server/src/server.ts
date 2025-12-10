@@ -309,7 +309,7 @@ app.post('/api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation/:g
     console.log('cpf:', clearCPF, 'goal:', goal, 'filled:', filled);
 
     if (filled) {
-      return res.json({ message: `Student already filled goal '${goal}'` });
+      return res.status(422).json({ message: `Student already filled goal '${goal}'` });
     }
 
     try {

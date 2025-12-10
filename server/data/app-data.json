@@ -13,12 +13,22 @@
     {
       "name": "João Elegância",
       "cpf": "33333333333",
-      "email": "ddaniel.live@gmail.com"
+      "email": "je@cin.ufpe.br"
     },
     {
       "name": "Joana Refatoração",
       "cpf": "55555555555",
       "email": "jr@gmail.com"
+    },
+    {
+      "name": "Aluno Teste",
+      "cpf": "12345678909",
+      "email": "aluno@teste.com"
+    },
+    {
+      "name": "Aluno Já Respondeu",
+      "cpf": "18293812399",
+      "email": "respondido@teste.com"
     }
   ],
   "classes": [
@@ -173,6 +183,88 @@
           "selfEvaluations": []
         }
       ]
+    },
+    {
+      "topic": "Turma 1765349914020",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": [
+        {
+          "studentCPF": "12345678909",
+          "evaluations": [],
+          "selfEvaluations": []
+        }
+      ]
+    },
+    {
+      "topic": "Turma a1",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": [
+        {
+          "studentCPF": "18293812399",
+          "evaluations": [],
+          "selfEvaluations": [
+            {
+              "goal": "Design",
+              "grade": "MA"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Turma b1",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": []
+    },
+    {
+      "topic": "Turma 1765349945017",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": [
+        {
+          "studentCPF": "12345678909",
+          "evaluations": [],
+          "selfEvaluations": []
+        }
+      ]
+    },
+    {
+      "topic": "Turma 1765350351191",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": [
+        {
+          "studentCPF": "12345678909",
+          "evaluations": [],
+          "selfEvaluations": []
+        }
+      ]
+    },
+    {
+      "topic": "Turma function now() { [native code] }",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": [
+        {
+          "studentCPF": "18293812399",
+          "evaluations": [],
+          "selfEvaluations": [
+            {
+              "goal": "Design",
+              "grade": "MA"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Turma 1765350355821",
+      "semester": 1,
+      "year": 2025,
+      "enrollments": []
     }
   ]
 }
