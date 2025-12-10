@@ -28,7 +28,9 @@ export const EMAILJS_CONFIG = {
 console.log("CONFIG::", EMAILJS_CONFIG);
 
 
-const sendEmail = async (to: string, subject: string, text: string): Promise<void> => {
+const sendEmail = async (to: string, studentName: string, goal: string): Promise<void> => {
+  const subject = `Solicitação de Autoavaliação para ${goal}`;
+  const text = `Olá ${studentName},\n\nVocê foi solicitado a preencher a autoavaliação para a meta: ${goal}.\nPor favor, acesse o sistema para completar sua autoavaliação.\n\nObrigado!`;
   try {
     // Esses parâmetros devem bater com as variáveis {{variavel}} no seu Template do site
     const templateParams = {
@@ -268,15 +270,11 @@ app.post('/api/classes/:classId/requestSelfEvaluationAll/:goal', async (req, res
       const filled = enrollment.getSelfEvaluationForGoal(goal);
 
       if (!filled) {
-        
         try {
-          await sendEmail(
-            enrollment.getStudent().email,
-            `Solicitação de Autoavaliação para ${goal}`,
-            `Olá ${enrollment.getStudent().name},\n\nVocê foi solicitado a preencher a autoavaliação para a meta: ${goal}.\nPor favor, acesse o sistema para completar sua autoavaliação.\n\nObrigado!`
-          );
+            await sendEmail(
+              enrollment.getStudent().email,enrollment.getStudent().name,goal)
         } catch (emailErr) {
-          console.error(`Erro ao enviar email para ${enrollment.getStudent().name}:`, emailErr);
+            console.error("Erro no envio de email:", emailErr);
         }
       }
     }
@@ -313,13 +311,9 @@ app.post('/api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation/:g
 
     try {
         await sendEmail(
-          enrollment.getStudent().email,
-          `Solicitação de Autoavaliação para ${goal}`,
-          `Olá ${enrollment.getStudent().name},\n\nVocê foi solicitado a preencher a autoavaliação para a meta: ${goal}.\nPor favor, acesse o sistema para completar sua autoavaliação.\n\nObrigado!`
-        );
+          enrollment.getStudent().email,enrollment.getStudent().name,goal)
     } catch (emailErr) {
         console.error("Erro no envio de email:", emailErr);
-        // Opcional: Você pode decidir retornar erro 500 aqui se o email for obrigatório
     }
 
     triggerSave();
@@ -358,12 +352,6 @@ app.post('/api/classes/:classId/scheduleOneTime/:goal', async (req, res) => {
   } catch (err:any) {
     return res.status(500).json({ error: err.message });
   }
-});
-
-app.post("/api/classes/:classId/self-evaluation/:cpf", (req, res) => {
-  const { classId, cpf } = req.params;
-  //Fazer o send email
-  res.status(200).json({ ok: true, message: "Solicitação enviada" });
 });
 
 // POST /api/students - Add a new student
@@ -657,7 +645,7 @@ if (process.env.NODE_ENV !== 'test') {
           
           const msg = `Olá ${student.name}, passando para lembrar que você ainda não preencheu a meta: ${metaParaEnviar}.`;
           
-          await sendEmail(student.email, `Lembrete: ${metaParaEnviar}`, msg);
+          await sendEmail(student.email, student.name, metaParaEnviar);
           
           houveMudanca = true;
         }
