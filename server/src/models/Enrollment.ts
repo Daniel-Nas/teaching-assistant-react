@@ -10,12 +10,12 @@ export class Enrollment {
   private selfEvaluationRequestDate?: string;
   private oneTimeSchedule: { goal: string, executeAt: number } | null = null;
   // Média do estudante antes da prova final
-  private mediaPreFinal: number;
+  private mediaPreFinal: number | null;
   // Média do estudante depois da final
-  private mediaPosFinal: number;
+  private mediaPosFinal: number | null;
   private reprovadoPorFalta: Boolean;
 
-  constructor(student: Student, evaluations: Evaluation[] = [], selfEvaluations: Evaluation[] = [], mediaPreFinal: number = 0, mediaPosFinal: number = 0, reprovadoPorFalta: Boolean = false) {
+  constructor(student: Student, evaluations: Evaluation[] = [], selfEvaluations: Evaluation[] = [], mediaPreFinal: number | null = null, mediaPosFinal: number | null = null, reprovadoPorFalta: Boolean = false) {
     this.student = student;
     this.evaluations = evaluations;
     this.selfEvaluations = selfEvaluations;
@@ -29,8 +29,18 @@ export class Enrollment {
     return this.student;
   }
 
+  // Calcula a média do estudante antes da prova final
+  calculateMediaPreFinal(): number {
+    throw new Error('calculateMedia() not implemented yet');
+  }
+
+  // Calcula a média do estudante depois da prova final
+  calculateMediaPosFinal(): number {
+    throw new Error('calculateMedia() not implemented yet');
+  }
+
   // Get media do estudante antes da prova final
-  getMediaPreFinal(): number{
+  getMediaPreFinal(): number | null{
     return this.mediaPreFinal;
   }
 
@@ -40,7 +50,7 @@ export class Enrollment {
   }
 
   // Get média do estudante depois da final
-  getMediaPosFinal(): number{
+  getMediaPosFinal(): number | null{
     return this.mediaPosFinal;
   }
 
@@ -131,7 +141,6 @@ export class Enrollment {
       this.addOrUpdateEvaluation(evaluation.getGoal(), evaluation.getGrade());
     });
   }
-  
   // Merge self-evaluations from another enrollment
   mergeSelfEvaluationsFrom(other: Enrollment): void {
     other.getSelfEvaluations().forEach(selfEvaluation => {
@@ -174,6 +183,9 @@ export class Enrollment {
       selfEvaluationRequested: this.selfEvaluationRequested,
       selfEvaluationRequestDate: this.selfEvaluationRequestDate,
       oneTimeSchedule: this.oneTimeSchedule,
+      mediaPreFinal: this.mediaPreFinal,
+      mediaPosFinal: this.mediaPosFinal,
+      reprovadoPorFalta: this.reprovadoPorFalta
     };
   }
 
@@ -191,14 +203,15 @@ export class Enrollment {
       student,
       evaluations,
       selfEvaluations,
-      data.mediaPreFinal ?? 0,
-      data.mediaPosFinal ?? 0,
+      data.mediaPreFinal ?? null,
+      data.mediaPosFinal ?? null,
       data.reprovadoPorFalta ?? false
     );
 
     enrollment.selfEvaluationRequested = data.selfEvaluationRequested ?? false;
     enrollment.selfEvaluationRequestDate = data.selfEvaluationRequestDate;
     enrollment.oneTimeSchedule = data.oneTimeSchedule || null;
+
     return enrollment;
   }
 

@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import dotenv from "dotenv";
 dotenv.config();
+import { EspecificacaoDoCalculoDaMedia, DEFAULT_ESPECIFICACAO_DO_CALCULO_DA_MEDIA } from './models/EspecificacaoDoCalculoDaMedia';
 import emailjs from "@emailjs/nodejs";
 
 function required(key: string, value: string | undefined): string {
@@ -82,6 +83,11 @@ const ensureDataDirectory = (): void => {
 };
 
 const saveDataToFile = (): void => {
+  // Skip saving in test environment
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+  
   try {
     const data = {
       students: studentSet.getAllStudents().map(student => ({
@@ -147,7 +153,7 @@ const loadDataFromFile = (): void => {
       if (data.classes && Array.isArray(data.classes)) {
         data.classes.forEach((classData: any) => {
           try {
-            const classObj = new Class(classData.topic, classData.semester, classData.year);
+            const classObj = new Class(classData.topic, classData.semester, classData.year, EspecificacaoDoCalculoDaMedia.fromJSON(classData.especificacaoDoCalculoDaMedia));
             classes.addClass(classObj);
 
             // Load enrollments for this class
@@ -165,6 +171,17 @@ const loadDataFromFile = (): void => {
                   // Load self-evaluations
                   if (enrollmentData.selfEvaluations && Array.isArray(enrollmentData.selfEvaluations)) {
                     loadEvaluations(enrollmentData.selfEvaluations, enrollment.addOrUpdateSelfEvaluation.bind(enrollment));
+                  }
+
+                  // Load medias and attendance status if provided in the data file
+                  if (typeof enrollmentData.mediaPreFinal !== 'undefined') {
+                    enrollment.setMediaPreFinal(enrollmentData.mediaPreFinal);
+                  }
+                  if (typeof enrollmentData.mediaPosFinal !== 'undefined') {
+                    enrollment.setMediaPosFinal(enrollmentData.mediaPosFinal);
+                  }
+                  if (typeof enrollmentData.reprovadoPorFalta !== 'undefined') {
+                    enrollment.setReprovadoPorFalta(Boolean(enrollmentData.reprovadoPorFalta));
                   }
 
                 } else {
@@ -236,7 +253,6 @@ const handleEvaluationUpdate = (req: Request, res: Response, options: {
         ? enrollment.addOrUpdateSelfEvaluation(goal, grade)
         : enrollment.addOrUpdateEvaluation(goal, grade);
     }
-
     triggerSave();
     res.json(enrollment.toJSON());
 
@@ -306,18 +322,16 @@ app.post('/api/classes/:classId/enrollments/:studentCPF/requestSelfEvaluation/:g
     console.log('cpf:', clearCPF, 'goal:', goal, 'filled:', filled);
 
     if (filled) {
-      return res.status(422).json({ message: `Student already filled goal '${goal}'` });
+      return res.status(422).json({ message: `Aluno já preencheu a meta '${goal}'` });
     }
-
     try {
         await sendEmail(
           enrollment.getStudent().email,enrollment.getStudent().name,goal)
     } catch (emailErr) {
         console.error("Erro no envio de email:", emailErr);
     }
-
+  console.log('Checkpoint: Email disparado, salvando...');
     triggerSave();
-
     return res.json({ message: "Request created" });
 
   } catch (err:any) {
@@ -485,7 +499,7 @@ app.post('/api/classes', (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Topic, semester, and year are required' });
     }
 
-    const classObj = new Class(topic, semester, year);
+    const classObj = new Class(topic, semester, year, DEFAULT_ESPECIFICACAO_DO_CALCULO_DA_MEDIA);
     const newClass = classes.addClass(classObj);
     triggerSave(); // Save to file after adding class
     res.status(201).json(newClass.toJSON());
@@ -608,11 +622,11 @@ app.get('/api/classes/:classId/enrollments', (req: Request, res: Response) => {
 });
 
 // PUT /api/classes/:classId/enrollments/:studentCPF/evaluation - Update evaluation for an enrolled student
-app.put('/api/classes/:classId/enrollments/:studentCPF/evaluation/:goal', (req, res) =>
+app.put('/api/classes/:classId/enrollments/:studentCPF/evaluation', (req, res) =>
   handleEvaluationUpdate(req, res, { type: 'evaluation' })
 );
 
-app.put('/api/classes/:classId/enrollments/:studentCPF/selfEvaluation/:goal', (req, res) =>
+app.put('/api/classes/:classId/enrollments/:studentCPF/selfEvaluation', (req, res) =>
   handleEvaluationUpdate(req, res, { type: 'selfEvaluation' })
 );
 
@@ -627,47 +641,42 @@ app.post('/api/classes/gradeImport/:classId', upload_dir.single('file'), async (
 
 const SCHEDULER_INTERVAL = 30 * 1000;
 
-if (process.env.NODE_ENV !== 'test') {
-  setInterval(async () => {
-  try {
-    const now = Date.now();
-    const allClasses = classes.getAllClasses(); 
-    let houveMudanca = false;
+// Export the app for testing
+export { app, studentSet, classes, cleanCPF };
 
-    for (const classObj of allClasses) {
-      for (const enrollment of classObj.getEnrollments()) {
-        
-        // O método retorna o NOME DA META se for hora de enviar, ou null se não for
-        const metaParaEnviar = enrollment.checkAndExecuteOneTime(now);
-        if (metaParaEnviar) {
-          const student = enrollment.getStudent();
-          console.log(`Enviando lembrete único para ${student.email}`);
+// Only start the server if this file is run directly (not imported for testing)
+if (require.main === module) {
+  setInterval(async () => {
+    try {
+      const now = Date.now();
+      const allClasses = classes.getAllClasses(); 
+      let houveMudanca = false;
+  
+      for (const classObj of allClasses) {
+        for (const enrollment of classObj.getEnrollments()) {
           
-          const msg = `Olá ${student.name}, passando para lembrar que você ainda não preencheu a meta: ${metaParaEnviar}.`;
-          
-          await sendEmail(student.email, student.name, metaParaEnviar);
-          
-          houveMudanca = true;
+          // O método retorna o NOME DA META se for hora de enviar, ou null se não for
+          const metaParaEnviar = enrollment.checkAndExecuteOneTime(now);
+          if (metaParaEnviar) {
+            const student = enrollment.getStudent();
+            console.log(`Enviando lembrete único para ${student.email}`);
+            
+            const msg = `Olá ${student.name}, passando para lembrar que você ainda não preencheu a meta: ${metaParaEnviar}.`;
+            
+            await sendEmail(student.email, student.name, metaParaEnviar);
+            
+            houveMudanca = true;
+          }
         }
       }
+  
+      if (houveMudanca) triggerSave();
+  
+    } catch (err) {
+      console.error('Erro no Scheduler:', err);
     }
-
-    if (houveMudanca) triggerSave();
-
-  } catch (err) {
-    console.error('Erro no Scheduler:', err);
-  }
-}, SCHEDULER_INTERVAL);
-
+  }, SCHEDULER_INTERVAL);
   app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
+    console.log(`Server running on http://localhost:${PORT}`);
   });
 }
-
-
-//  app.listen(PORT, () => {
-//    console.log(`Server running on http://localhost:${PORT}`);
-//  });
-
-  export { app };
-  export { cleanCPF };

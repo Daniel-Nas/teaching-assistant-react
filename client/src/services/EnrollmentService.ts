@@ -99,11 +99,10 @@ static async requestSelfEvaluation(classId: string, studentCPF: string, goal: st
     `${API_BASE_URL}/api/classes/${classId}/enrollments/${studentCPF}/requestSelfEvaluation/${goal}`,
     { method: 'POST' }
   );
-
   if (!response.ok) {
-    throw new Error('Failed to request self-evaluation');
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message || 'Erro ao processar solicitação.');
   }
-
   return response.json();
 }
 
@@ -119,6 +118,27 @@ const res = await fetch(
   return res.json();
 }
 
+  static async updateSelfEvaluation(classId: string, studentCPF: string, goal: string, grade: string): Promise<Enrollment> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/classes/${classId}/enrollments/${studentCPF}/selfEvaluation`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ goal, grade }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update self-evaluation');
+      }
+      
+      return response.json();
+    } catch (error) {
+      console.error('Error updating self-evaluation:', error);
+      throw error;
+    }
+  }
 }
 
 export default EnrollmentService;

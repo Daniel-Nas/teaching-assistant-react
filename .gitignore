@@ -1,7 +1,15 @@
-node_modules
-server/dist
-client/build
+
 server/coverage
 client/node_modules
 server/.env
 server/data/app-data.json
+node_modules/
+server/dist/
+client/build/
+# Cucumber test reports
+client/reports/
+cucumber-report.*
+# jest coverage directory
+coverage/
+# multer folder
+tmp_data/

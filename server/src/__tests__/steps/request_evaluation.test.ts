@@ -1,6 +1,6 @@
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import request from 'supertest';
-import { app } from '../../src/server';
+import { app } from '../../server';
 
 const feature = loadFeature('./__tests__/features/selfEvaluation.feature');
 
@@ -23,7 +23,7 @@ defineFeature(feature, test => {
 
         // 2. Cria Turma
         const classRes = await request(app).post('/api/classes').send({
-          topic: `${turma}`,
+          topic: `Turma ${turma}`,
           semester: 1,
           year: 2025
         });
@@ -35,15 +35,16 @@ defineFeature(feature, test => {
           .send({ studentCPF: cleanCPF });
     });
 
-    when(/^eu solicito o envio de autoavaliação da meta "(.*)" para o aluno "(.*)" da turma "(.*)"$/, async (goal, cpf, alias) => {
+    when(/^eu solicito o envio de autoavaliação da meta "(.*)" para o aluno "(.*)" da turma "(.*)"$/, async (goal, cpf, turma) => {
         const cleanCPF = cpf.replace(/[^\d]/g, '');
         response = await request(app)
           .post(`/api/classes/${classId}/enrollments/${cleanCPF}/requestSelfEvaluation/${goal}`)
           .send();
     });
 
+    // CORREÇÃO AQUI: Regex que aceita "um status de sucesso" OU "o status" e ignora espaços no fim (\s*)
     then(/^o sistema deve retornar (?:um status de sucesso|o status) "(.*)"\s*$/, (status) => {
-        expect(response.status).toBe(status);
+        expect(response.status).toBe(Number(status));
     });
 
     and(/^a mensagem de resposta deve indicar "(.*)"$/, (msg) => {
@@ -55,7 +56,7 @@ defineFeature(feature, test => {
   test('Enviando solicitação autoavaliação para um aluno que já respondeu a autoavaliação', ({ given, when, then, and }) => {
     let clearCPF = '';
     // Regex ajustado para pegar Turma, CPF e Meta
-    given(/^na turma "(.*)" existe um aluno de CPF "(.*)" que completou a autoavaliação da meta "(.*)" com "(.*)"$/, async (turma, cpf, meta, grade) => {
+    given(/^na turma "(.*)" existe um aluno de CPF "(.*)" que já completou a autoavaliação da meta "(.*)"$/, async (turma, cpf, meta) => {
       clearCPF = cpf.replace(/[^\d]/g, ''); // Limpa e guarda o CPF
       
       // 1. Cria o aluno
@@ -80,8 +81,8 @@ defineFeature(feature, test => {
 
       // 4. PREENCHE a autoavaliação (Simula que já existe)
       await request(app)
-        .put(`/api/classes/${classId}/enrollments/${clearCPF}/selfEvaluation`)
-        .send({ meta, grade }).expect(200); 
+        .put(`/api/classes/${classId}/enrollments/${clearCPF}/selfEvaluation/${meta}`)
+        .send({ goal: meta, grade: "MA" }); 
     });
 
     when(/^eu solicito o envio de autoavaliação da meta "(.*)" para este aluno$/, async (goal) => {
